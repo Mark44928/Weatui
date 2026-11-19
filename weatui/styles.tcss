@@ -61,7 +61,7 @@ ListView > ListItem.-highlight {
 }
 
 #days {
-    height: 9;
+    height: 10;
     scrollbar-size-vertical: 0;
     scrollbar-size-horizontal: 0;
     border: round #2F6B4C;
