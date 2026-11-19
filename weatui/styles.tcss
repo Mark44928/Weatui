@@ -1,0 +1,134 @@
+Screen {
+    background: #0C1F17;
+    color: #DEF4E5;
+}
+
+#shell {
+    height: 1fr;
+    padding: 1 2;
+}
+
+#topbar {
+    height: 3;
+    padding: 0 1;
+    border-bottom: solid #2F6B4C;
+    color: #7BD88F;
+    text-style: bold;
+}
+
+#body {
+    height: 1fr;
+}
+
+#sidebar {
+    width: 30;
+    padding: 1 1;
+    border-right: solid #2F6B4C;
+}
+
+#details {
+    width: 1fr;
+    padding: 1 2;
+}
+
+.section {
+    color: #9CB8A3;
+    text-style: bold;
+    margin-top: 1;
+}
+
+#cities {
+    height: 1fr;
+    background: #122A1F;
+    border: round #2F6B4C;
+}
+
+ListView > ListItem {
+    padding: 0 1;
+}
+
+ListView > ListItem.-highlight {
+    background: #7BD88F;
+    color: #07140D;
+}
+
+#current {
+    min-height: 6;
+    padding: 1;
+    border: round #2F6B4C;
+    background: #122A1F;
+    color: #DEF4E5;
+}
+
+#days {
+    height: 9;
+    scrollbar-size-vertical: 0;
+    scrollbar-size-horizontal: 0;
+    border: round #2F6B4C;
+    background: #122A1F;
+    color: #DEF4E5;
+}
+
+#hours {
+    color: #9CB8A3;
+}
+
+#side-hint {
+    color: #6F917B;
+    margin-top: 1;
+}
+
+#statusbar {
+    height: 2;
+    padding: 0 1;
+    border-top: solid #2F6B4C;
+    color: #9CB8A3;
+}
+
+#add-card {
+    width: 60;
+    height: auto;
+    padding: 1 2;
+    border: thick #7BD88F;
+    background: #122A1F;
+}
+
+#add-title {
+    color: #7BD88F;
+    text-style: bold;
+}
+
+#city-input {
+    margin: 1 0;
+}
+
+#add-hint {
+    color: #9CB8A3;
+}
+
+.theme-greenit { background: #0C1F17; color: #DEF4E5; }
+.theme-greenit ListView > ListItem.-highlight { background: #7BD88F; color: #07140D; }
+.theme-greenit #topbar { color: #7BD88F; border-bottom: solid #2F6B4C; }
+.theme-greenit #cities, .theme-greenit #current, .theme-greenit #days, .theme-greenit #add-card { background: #122A1F; border: round #2F6B4C; color: #DEF4E5; }
+
+.theme-bluney { background: #0E1B2E; color: #E3EFF9; }
+.theme-bluney ListView > ListItem.-highlight { background: #7DBBFF; color: #07101E; }
+.theme-bluney #topbar { color: #7DBBFF; border-bottom: solid #2C4E78; }
+.theme-bluney #sidebar { border-right: solid #2C4E78; }
+.theme-bluney #cities, .theme-bluney #current, .theme-bluney #days, .theme-bluney #add-card { background: #122A46; border: round #2C4E78; color: #E3EFF9; }
+.theme-bluney #statusbar { border-top: solid #2C4E78; color: #9DB8D2; }
+
+.theme-yellen { background: #171408; color: #F3E8B8; }
+.theme-yellen ListView > ListItem.-highlight { background: #F2D14E; color: #171408; }
+.theme-yellen #topbar { color: #F2D14E; border-bottom: solid #6E5B25; }
+.theme-yellen #sidebar { border-right: solid #6E5B25; }
+.theme-yellen #cities, .theme-yellen #current, .theme-yellen #days, .theme-yellen #add-card { background: #24200C; border: round #6E5B25; color: #F3E8B8; }
+.theme-yellen #statusbar { border-top: solid #6E5B25; color: #A79765; }
+.theme-yellen .section, .theme-yellen #side-hint, .theme-yellen #hours { color: #A79765; }
+
+.theme-mono { background: #0B0B0B; color: #F0F0F0; }
+.theme-mono ListView > ListItem.-highlight { background: #F0F0F0; color: #0B0B0B; }
+.theme-mono #topbar { color: #FFFFFF; border-bottom: solid #444444; }
+.theme-mono #sidebar { border-right: solid #444444; }
+.theme-mono #cities, .theme-mono #current, .theme-mono #days, .theme-mono #add-card { background: #161616; border: round #444444; color: #F0F0F0; }
+.theme-mono #statusbar { border-top: solid #444444; color: #999999; }

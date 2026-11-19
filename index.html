@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weatui — friendly terminal weather</title>
+<link rel="canonical" href="https://mark44928.github.io/Weatui/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mark44928">
+<meta property="og:title" content="Weatui — friendly terminal weather">
+<meta property="og:description" content="A friendly terminal weather app powered by Open-Meteo. Saved cities, current conditions, seven days, next hours, no API key.">
+<meta property="og:url" content="https://mark44928.github.io/Weatui/">
+<meta property="og:image" content="https://mark44928.github.io/Weatui/docs/app.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mark44928.github.io/Weatui/docs/app.png">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:dark;--bg:#0E1B2E;--panel:#122A46;--line:#2F5A86;--text:#E3EFF9;--muted:#8FAFCF;--accent:#7DBBFF;--gold:#F2D14E}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(80% 55% at 50% 0,#1B4066,var(--bg));color:var(--text);font:16px/1.55 ui-sans-serif,system-ui,sans-serif}
+main{max-width:900px;margin:auto;padding:42px 20px 64px}a{color:var(--gold)}.back{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:var(--muted)}
+.logo{display:block;width:min(760px,100%);height:auto;margin:18px 0 10px}.k{color:var(--accent);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;margin:28px 0 8px}h1{font-size:clamp(3rem,10vw,6.4rem);line-height:.9;letter-spacing:-.065em;margin:0}.lede{font-size:1.18rem;color:var(--muted);max-width:62ch}
+.buttons{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0}.btn{padding:10px 15px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);text-decoration:none;font-weight:700}.btn.primary{border-color:var(--accent);color:var(--accent);background:#0B1B2C}.btn:hover{text-decoration:none;transform:translateY(-1px)}
+pre{background:#091422;border:1px solid var(--line);border-radius:11px;padding:14px;overflow:auto}img.shot{display:block;width:100%;border:1px solid var(--line);border-radius:14px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;padding:0;list-style:none}.grid li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px;color:var(--muted)}.grid b{display:block;color:var(--accent)}
+footer{display:flex;justify-content:space-between;gap:18px;margin-top:34px;padding-top:15px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem}
+@media(max-width:700px){footer{flex-direction:column}}
+</style>
+<main>
+<a class="back" href="https://mark44928.github.io/Mark44928/">← Back to family hub</a>
+<img class="logo" src="assets/logo.svg" alt="Weatui logo">
+<p class="k">Weather · Python + Textual</p>
+<h1>LOOK UP.<br>NO LOGIN.</h1>
+<p class="lede">A friendly terminal weather app with saved cities, current conditions, a seven-day table and the next few hours — powered by Open-Meteo and nothing else.</p>
+<div class="buttons"><a class="btn primary" href="https://github.com/Mark44928/Weatui">Install &amp; source</a><a class="btn" href="#install">Install</a><a class="btn" href="https://github.com/Mark44928/Weatui/releases">Releases</a></div>
+<pre id="install">pipx install git+https://github.com/Mark44928/Weatui.git
+weatui</pre>
+<img class="shot" src="docs/app.png" alt="Weatui showing Manila current conditions and the next seven days">
+<section class="k">What's inside</section>
+<ul class="grid"><li><b>Saved cities</b>a readable JSON config</li><li><b>Seven days</b>with rain, UV and sun times</li><li><b>Next hours</b>a quick forecast glance</li><li><b>No account</b>Open-Meteo, no API key</li></ul>
+<p style="color:var(--muted);font-size:.8rem">Weather and geocoding data © <a href="https://open-meteo.com/">Open-Meteo.com</a> (CC BY 4.0). Weatui is not affiliated with Open-Meteo.</p>
+<footer><span>Weatui · MIT</span><span><a href="https://github.com/Mark44928/Weatui">GitHub</a> · <a href="https://mark44928.github.io/Mark44928/">Family hub</a></span></footer>
+</main>
+</html>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t d">
+  <title id="t">Weatui</title>
+  <desc id="d">Weatui app icon: a golden sun behind a blue cloud on a dark navy tile.</desc>
+  <rect width="512" height="512" rx="104" fill="#0E1B2E"/>
+  <circle cx="256" cy="256" r="190" fill="#122A46" stroke="#2F5A86" stroke-width="4"/>
+  <circle cx="216" cy="209" r="67" fill="#F2D14E"/>
+  <path d="M150 300c0-31 24-55 55-55 14-38 67-43 91-7 34 2 57 29 57 62z" fill="#7DBBFF"/>
+  <path d="M192 346l-17 41M252 346l-17 41M312 346l-17 41" stroke="#8BD5FF" stroke-width="14" stroke-linecap="round"/>
+</svg>

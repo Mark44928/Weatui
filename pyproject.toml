@@ -1,0 +1,46 @@
+[project]
+name = "weatui"
+version = "1.0.0"
+description = "A friendly terminal weather TUI powered by Open-Meteo"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["textual>=1.0"]
+license = {text = "MIT"}
+authors = [{name = "Mark44928"}]
+keywords = ["weather", "open-meteo", "terminal", "textual", "tui"]
+classifiers = [
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4.0", "pytest-asyncio>=0.21.0", "ruff>=0.5.0"]
+
+[project.scripts]
+weatui = "weatui.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["weatui*"]
+
+[tool.setuptools.package-data]
+weatui = ["styles.tcss"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = ["."]
