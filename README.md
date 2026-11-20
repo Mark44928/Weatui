@@ -4,6 +4,8 @@
 
 A friendly terminal weather app built with **Python + Textual** and powered by **Open-Meteo**. Save a handful of cities, switch between them, and get a clean current / 7-day / next-hours view without accounts, API keys or a browser.
 
+<p align="center"><img src="docs/screenshot-weather.png" width="720" alt="Weatui weather screen"></p>
+
 [![CI](https://github.com/Mark44928/Weatui/actions/workflows/ci.yml/badge.svg)](https://github.com/Mark44928/Weatui/actions/workflows/ci.yml)
 [![Pages](https://img.shields.io/badge/site-GitHub%20Pages-7DBBFF)](https://mark44928.github.io/Weatui/)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
