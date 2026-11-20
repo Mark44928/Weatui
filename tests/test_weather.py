@@ -80,3 +80,33 @@ def test_fetch_forecast_parses_payload(monkeypatch) -> None:
     assert forecast.hours[1].precipitation_chance == 20
     assert forecast.days[0].sunrise == "06:10"
     assert forecast.days[0].sunset == "17:40"
+
+
+def test_air_quality_parses_and_labels(monkeypatch) -> None:
+    monkeypatch.setattr(
+        weather,
+        "_request_json",
+        lambda *_a, **_k: {
+            "current": {
+                "european_aqi": 34,
+                "pm2_5": 12.4,
+                "pm10": 21.0,
+            }
+        },
+    )
+    city = weather.City("Manila", "", "Philippines", 14.6, 121.0)
+    air = weather.fetch_air_quality(city)
+    assert air.aqi == 34
+    assert air.pm2_5 == 12.4
+    assert weather.aqi_label(34) == "fair"
+    assert weather.aqi_label(10) == "good"
+    assert weather.aqi_label(150) == "extreme"
+
+
+def test_sparkline_is_bounded_and_ordered() -> None:
+    assert weather.sparkline([]) == ""
+    assert weather.sparkline([20, 20, 20]) == "───"
+    line = weather.sparkline([10, 20, 30])
+    assert line[0] == "▁"
+    assert line[-1] == "█"
+    assert len(line) == 3

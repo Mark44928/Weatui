@@ -1,6 +1,6 @@
 [project]
 name = "weatui"
-version = "1.0.0"
+version = "1.1.0"
 description = "A friendly terminal weather TUI powered by Open-Meteo"
 readme = "README.md"
 requires-python = ">=3.10"

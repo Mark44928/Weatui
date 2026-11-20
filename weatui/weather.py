@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 
 GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
+AIR_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 USER_AGENT = "weatui/1.0 (Open-Meteo; terminal weather)"
 
 
@@ -53,6 +54,13 @@ class Day:
     uv: float
     sunrise: str
     sunset: str
+
+
+@dataclass(frozen=True, slots=True)
+class Air:
+    aqi: int
+    pm2_5: float
+    pm10: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -213,6 +221,49 @@ def fetch_forecast(city: City, days: int = 7) -> Forecast:
         hours=tuple(hours),
         days=tuple(out_days),
     )
+
+
+def fetch_air_quality(city: City) -> Air:
+    query = {
+        "latitude": city.latitude,
+        "longitude": city.longitude,
+        "current": "european_aqi,pm2_5,pm10",
+        "timezone": "auto",
+    }
+    payload = _request_json(f"{AIR_URL}?{urlencode(query)}")
+    current = payload.get("current")
+    if not isinstance(current, dict):
+        raise WeatherError("Open-Meteo air response is missing current data")
+    return Air(
+        aqi=int(_number(current.get("european_aqi"))),
+        pm2_5=_number(current.get("pm2_5")),
+        pm10=_number(current.get("pm10")),
+    )
+
+
+def aqi_label(aqi: int) -> str:
+    if aqi <= 20:
+        return "good"
+    if aqi <= 40:
+        return "fair"
+    if aqi <= 60:
+        return "moderate"
+    if aqi <= 80:
+        return "poor"
+    if aqi <= 100:
+        return "very poor"
+    return "extreme"
+
+
+def sparkline(values: list[float] | tuple[float, ...], width: int = 12) -> str:
+    points = [float(v) for v in values if math.isfinite(float(v))][:width]
+    if not points:
+        return ""
+    low, high = min(points), max(points)
+    if high - low < 0.1:
+        return "─" * len(points)
+    blocks = "▁▂▃▄▅▆▇█"
+    return "".join(blocks[round((v - low) / (high - low) * (len(blocks) - 1))] for v in points)
 
 
 def c_to_f(value: float) -> float:

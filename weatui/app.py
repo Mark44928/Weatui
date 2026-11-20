@@ -9,18 +9,23 @@ from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
+from textual.css.query import NoMatches
 from textual.screen import ModalScreen
 from textual.widgets import DataTable, Input, Label, ListItem, ListView, Static
 
 from .store import THEMES, Store
 from .weather import (
+    Air,
     City,
     Forecast,
     WeatherError,
+    aqi_label,
+    fetch_air_quality,
     fetch_forecast,
     format_temp,
     format_wind,
     search_cities,
+    sparkline,
     weather_text,
     wind_direction,
 )
@@ -46,6 +51,84 @@ class AddCityScreen(ModalScreen[str | None]):
         self.dismiss(None)
 
 
+class CityPickerScreen(ModalScreen[City | None]):
+    BINDINGS = [Binding("escape", "cancel", "Cancel")]
+
+    def __init__(self, cities: list[City]) -> None:
+        super().__init__()
+        self.cities = cities
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="pick-card"):
+            yield Static("MATCHES", id="add-title")
+            yield ListView(
+                *[ListItem(Label(city.label), id=f"match-{index}") for index, city in enumerate(self.cities)],
+                id="matches",
+            )
+            yield Static("Enter to add · Esc to cancel", id="add-hint")
+
+    def on_list_view_selected(self, event: ListView.Selected) -> None:
+        item = event.item
+        if item is None or not item.id or not item.id.startswith("match-"):
+            return
+        try:
+            index = int(item.id.removeprefix("match-"))
+        except ValueError:
+            return
+        if 0 <= index < len(self.cities):
+            self.dismiss(self.cities[index])
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
+class CompareScreen(ModalScreen[None]):
+    BINDINGS = [Binding("escape", "close", "Close"), Binding("v", "close", "Close")]
+
+    def __init__(self, rows: list[tuple[str, ...]]) -> None:
+        super().__init__()
+        self.rows = rows
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="compare-card"):
+            yield Static("ALL CITIES", id="add-title")
+            yield DataTable(id="compare-table", zebra_stripes=True, cursor_type="none")
+            yield Static("v / Esc close", id="add-hint")
+
+    def on_mount(self) -> None:
+        table = self.query_one("#compare-table", DataTable)
+        table.add_columns("City", "Now", "Sky", "Feels", "Humidity", "Wind", "Rain", "AQI")
+        for row in self.rows:
+            table.add_row(*row)
+
+    def action_close(self) -> None:
+        self.dismiss()
+
+
+class ConfirmRemoveScreen(ModalScreen[bool]):
+    BINDINGS = [
+        Binding("escape", "cancel", "Cancel"),
+        Binding("n", "cancel", "Cancel"),
+        Binding("y", "confirm", "Remove"),
+    ]
+
+    def __init__(self, city: City) -> None:
+        super().__init__()
+        self.city = city
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="confirm-card"):
+            yield Static("REMOVE CITY?", id="add-title")
+            yield Static(self.city.label, id="confirm-city")
+            yield Static("y remove · n / Esc keep", id="add-hint")
+
+    def action_confirm(self) -> None:
+        self.dismiss(True)
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
+
+
 class WeatuiApp(App[None]):
     CSS_PATH = "styles.tcss"
     TITLE = "Weatui"
@@ -54,8 +137,11 @@ class WeatuiApp(App[None]):
         Binding("a", "add_city", "Add"),
         Binding("d", "remove_city", "Remove"),
         Binding("r", "refresh", "Refresh"),
+        Binding("[", "move_up", "Move up"),
+        Binding("]", "move_down", "Move down"),
         Binding("u", "toggle_units", "Units"),
         Binding("t", "cycle_theme", "Theme"),
+        Binding("v", "compare", "All cities"),
         Binding("q", "quit", "Quit"),
     ]
 
@@ -63,6 +149,7 @@ class WeatuiApp(App[None]):
         super().__init__()
         self.store = store or Store()
         self.forecasts: dict[tuple[float, float], Forecast] = {}
+        self.air: dict[tuple[float, float], Air] = {}
         self._pending_selection: tuple[float, float] | None = None
         self._last_update: datetime | None = None
         self._city_serial = 0
@@ -74,7 +161,7 @@ class WeatuiApp(App[None]):
                 with Vertical(id="sidebar"):
                     yield Static("CITIES", classes="section")
                     yield ListView(id="cities")
-                    yield Static("a add  d remove  ↑↓ browse", id="side-hint")
+                    yield Static("a add  d remove  ↑↓ browse\n[ ] move  v all cities", id="side-hint")
                 with Vertical(id="details"):
                     yield Static("CURRENT", classes="section")
                     yield Static(id="current")
@@ -108,7 +195,16 @@ class WeatuiApp(App[None]):
             self.screen.remove_class(f"theme-{theme}")
         self.screen.add_class(f"theme-{self.store.config.theme}")
 
+    def _shell_ready(self) -> bool:
+        try:
+            self.query_one("#current", Static)
+        except NoMatches:
+            return False
+        return True
+
     def _render_cities(self) -> None:
+        if not self._shell_ready():
+            return
         city_list = self.query_one("#cities", ListView)
         city_list.clear()
         for city in self.store.config.cities:
@@ -118,6 +214,8 @@ class WeatuiApp(App[None]):
             city_list.index = self.store.config.selected
 
     def _render_selection(self) -> None:
+        if not self._shell_ready():
+            return
         cities = self.store.config.cities
         if not cities:
             self.query_one("#current", Static).update("Add a city to see the forecast.")
@@ -151,6 +249,15 @@ class WeatuiApp(App[None]):
             style="dim",
         )
         current.append(f"{forecast.precipitation_mm:.1f} mm now", style="dim")
+        air = self.air.get((city.latitude, city.longitude))
+        if air is not None:
+            current.append(
+                f"  ·  AQI {air.aqi} {aqi_label(air.aqi)}  ·  PM2.5 {air.pm2_5:.0f}  ·  PM10 {air.pm10:.0f}",
+                style="dim",
+            )
+        trend = sparkline([hour.temperature_c for hour in forecast.hours[:12]])
+        if trend:
+            current.append(f"\n12h  {trend}", style="dim")
         self.query_one("#current", Static).update(current)
 
         table = self.query_one("#days", DataTable)
@@ -173,6 +280,8 @@ class WeatuiApp(App[None]):
         self.query_one("#hours", Static).update(hours or "No hourly data")
 
     def _set_status(self, message: str) -> None:
+        if not self._shell_ready():
+            return
         self.query_one("#statusbar", Static).update(Text(message, style="dim"))
 
     def action_refresh(self) -> None:
@@ -190,11 +299,46 @@ class WeatuiApp(App[None]):
                 self.call_from_thread(self._set_status, f"{city.label}: {exc}")
                 continue
             self.call_from_thread(self._store_forecast, city, forecast)
+            try:
+                air = fetch_air_quality(city)
+            except WeatherError:
+                continue
+            self.call_from_thread(self._store_air, city, air)
 
     def _store_forecast(self, city: City, forecast: Forecast) -> None:
         self.forecasts[(city.latitude, city.longitude)] = forecast
         self._last_update = datetime.now()
         self._render_selection()
+
+    def _store_air(self, city: City, air: Air) -> None:
+        self.air[(city.latitude, city.longitude)] = air
+        self._render_selection()
+
+    def action_compare(self) -> None:
+        rows: list[tuple[str, ...]] = []
+        units = self.store.config.units
+        for city in self.store.config.cities:
+            forecast = self.forecasts.get((city.latitude, city.longitude))
+            air = self.air.get((city.latitude, city.longitude))
+            if forecast is None:
+                rows.append((city.name, "loading", "—", "—", "—", "—", "—", "—"))
+                continue
+            rows.append(
+                (
+                    city.name,
+                    format_temp(forecast.temperature_c, units),
+                    weather_text(forecast.code),
+                    format_temp(forecast.feels_like_c, units),
+                    f"{forecast.humidity}%",
+                    format_wind(forecast.wind_kmh, units),
+                    f"{forecast.precipitation_mm:.1f} mm",
+                    str(air.aqi) if air else "—",
+                )
+            )
+        if rows:
+            self.push_screen(CompareScreen(rows))
+        else:
+            self._set_status("no saved cities yet")
 
     def action_add_city(self) -> None:
         self.push_screen(AddCityScreen(), self._lookup_city)
@@ -211,9 +355,14 @@ class WeatuiApp(App[None]):
         except WeatherError as exc:
             self.call_from_thread(self._set_status, str(exc))
             return
-        self.call_from_thread(self._add_city, cities[0])
+        self.call_from_thread(self._pick_city, cities)
+
+    def _pick_city(self, cities: list[City]) -> None:
+        self.push_screen(CityPickerScreen(cities), self._add_city)
 
     def _add_city(self, city: City) -> None:
+        if city is None:
+            return
         self.store.add_city(city)
         self._render_cities()
         self._render_selection()
@@ -224,11 +373,32 @@ class WeatuiApp(App[None]):
         if not self.store.config.cities:
             return
         city = self.store.config.cities[self.store.config.selected]
+        self.push_screen(ConfirmRemoveScreen(city), self._remove_confirmed)
+
+    def _remove_confirmed(self, confirmed: bool | None) -> None:
+        if not confirmed or not self.store.config.cities:
+            return
+        city = self.store.config.cities[self.store.config.selected]
         self.store.remove_city(self.store.config.selected)
-        self.forecasts.pop((city.latitude, city.longitude), None)
+        key = (city.latitude, city.longitude)
+        self.forecasts.pop(key, None)
+        self.air.pop(key, None)
         self._render_cities()
         self._render_selection()
         self._set_status(f"removed {city.name}")
+
+    def action_move_up(self) -> None:
+        self._move_city(-1)
+
+    def action_move_down(self) -> None:
+        self._move_city(1)
+
+    def _move_city(self, delta: int) -> None:
+        if not self.store.config.cities:
+            return
+        self.store.move_city(self.store.config.selected, delta)
+        self._render_cities()
+        self._render_selection()
 
     def action_toggle_units(self) -> None:
         self.store.set_units("F" if self.store.config.units == "C" else "C")

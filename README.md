@@ -12,9 +12,12 @@ A friendly terminal weather app built with **Python + Textual** and powered by *
 
 ## Features
 
-- saved cities in a readable JSON config
-- current conditions, feels-like, humidity, wind, UV and rain
-- next 7 days and next 6 hours
+- saved cities in a readable JSON config, reorderable to taste
+- current conditions, feels-like, humidity, wind, UV, rain and air quality
+- a 12-hour temperature sparkline plus the next 7 days and next 6 hours
+- city search that lets you pick the right match, not just the first one
+- an all-cities compare table for a quick side-by-side
+- remove-with-confirmation so a stray key does not drop a city
 - Celsius / Fahrenheit toggle
 - Greenit, Bluney, Yellen and Mono interface themes
 - automatic refresh (10 minutes by default)
@@ -45,11 +48,13 @@ It creates an isolated venv and links into `$PREFIX/bin` on Termux or `~/.local/
 | Key | Action |
 |---|---|
 | `a` | add a city |
-| `d` | remove the selected city |
+| `d` | remove the selected city (asks first) |
 | `↑` / `↓` | choose a saved city |
+| `[` / `]` | move the selected city up / down |
 | `r` | refresh now |
 | `u` | switch Celsius / Fahrenheit |
 | `t` | cycle theme |
+| `v` | compare all saved cities |
 | `q` | quit |
 
 ## Config
@@ -90,7 +95,7 @@ weatui --version
 make check
 ```
 
-Runs Ruff, 7 tests and a CLI smoke check. The tests mock all Open-Meteo traffic.
+Runs Ruff, 13 tests and a CLI smoke check. The tests mock all Open-Meteo traffic.
 
 ## Data
 

@@ -53,7 +53,7 @@ ListView > ListItem.-highlight {
 }
 
 #current {
-    min-height: 6;
+    min-height: 8;
     padding: 1;
     border: round #2F6B4C;
     background: #122A1F;
@@ -132,3 +132,57 @@ ListView > ListItem.-highlight {
 .theme-mono #sidebar { border-right: solid #444444; }
 .theme-mono #cities, .theme-mono #current, .theme-mono #days, .theme-mono #add-card { background: #161616; border: round #444444; color: #F0F0F0; }
 .theme-mono #statusbar { border-top: solid #444444; color: #999999; }
+
+#pick-card {
+    width: 70;
+    height: auto;
+    max-height: 80%;
+    padding: 1 2;
+    border: thick #7BD88F;
+    background: #122A1F;
+}
+
+#matches {
+    height: auto;
+    max-height: 12;
+    margin: 1 0;
+    background: #0C1F17;
+    border: round #2F6B4C;
+}
+
+#matches > ListItem {
+    padding: 0 1;
+}
+
+#matches > ListItem.-highlight {
+    background: #7BD88F;
+    color: #07140D;
+}
+
+#confirm-card {
+    width: 60;
+    height: auto;
+    padding: 1 2;
+    border: thick #E06C75;
+    background: #2A1215;
+}
+
+#confirm-city {
+    padding: 1 0;
+    color: #F5D6D8;
+}
+
+#compare-card {
+    width: 92%;
+    height: auto;
+    max-height: 80%;
+    padding: 1 2;
+    border: thick #61D7FF;
+    background: #0B1B24;
+}
+
+#compare-table {
+    height: auto;
+    max-height: 16;
+    margin: 1 0;
+}

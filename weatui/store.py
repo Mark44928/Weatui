@@ -121,6 +121,16 @@ class Store:
             self.config.selected = max(0, min(len(self.config.cities) - 1, index))
             self.save()
 
+    def move_city(self, index: int, delta: int) -> None:
+        target = index + delta
+        if 0 <= index < len(self.config.cities) and 0 <= target < len(self.config.cities):
+            self.config.cities[index], self.config.cities[target] = (
+                self.config.cities[target],
+                self.config.cities[index],
+            )
+            self.config.selected = target
+            self.save()
+
     def set_units(self, units: str) -> None:
         self.config.units = units.upper() if units.upper() in UNITS else "C"
         self.save()

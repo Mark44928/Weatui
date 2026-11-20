@@ -37,3 +37,16 @@ def test_bad_config_falls_back(tmp_path: Path) -> None:
     assert config.units == "C"
     assert config.theme == "greenit"
     assert config.refresh_seconds == 60
+
+
+def test_move_city_reorders_and_keeps_selection(tmp_path: Path) -> None:
+    store = Store(tmp_path / "config.json")
+    store.add_city(City("Manila", "", "Philippines", 14.6, 121.0))
+    store.add_city(City("Tokyo", "", "Japan", 35.7, 139.7))
+    store.add_city(City("Oslo", "", "Norway", 59.9, 10.7))
+    store.select(1)
+    store.move_city(1, -1)
+    assert [city.name for city in store.config.cities] == ["Tokyo", "Manila", "Oslo"]
+    assert store.config.selected == 0
+    store.move_city(0, -1)
+    assert [city.name for city in store.config.cities] == ["Tokyo", "Manila", "Oslo"]
