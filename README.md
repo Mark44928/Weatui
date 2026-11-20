@@ -99,4 +99,6 @@ Weather and geocoding data by [Open-Meteo](https://open-meteo.com/) under
 affiliated with Open-Meteo. The app is intended for non-commercial use, matching
 Open-Meteo's free API terms.
 
+Part of the [Mark44928 family](https://mark44928.github.io/Mark44928/): [Fluffless Prompt](https://github.com/Mark44928/FlufflessPrompt) · [Greenit](https://github.com/Mark44928/Greenit) · [Bluney](https://github.com/Mark44928/Bluney) · [Yellen](https://github.com/Mark44928/Yellen).
+
 MIT.
