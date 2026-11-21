@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from weatui import weather
 
 
@@ -110,3 +112,85 @@ def test_sparkline_is_bounded_and_ordered() -> None:
     assert line[0] == "▁"
     assert line[-1] == "█"
     assert len(line) == 3
+
+
+def test_search_cities_tolerates_null_results(monkeypatch) -> None:
+    monkeypatch.setattr(weather, "_request_json", lambda *_a, **_k: {"results": None})
+    with pytest.raises(weather.WeatherError):
+        weather.search_cities("Manila")
+
+
+def test_search_cities_tolerates_null_fields(monkeypatch) -> None:
+    monkeypatch.setattr(
+        weather,
+        "_request_json",
+        lambda *_a, **_k: {
+            "results": [
+                {
+                    "name": "Nowhere",
+                    "admin1": None,
+                    "country": None,
+                    "latitude": 1.0,
+                    "longitude": 2.0,
+                }
+            ]
+        },
+    )
+    cities = weather.search_cities("Nowhere")
+    assert len(cities) == 1
+    assert "None" not in cities[0].label
+
+
+def test_air_quality_rejects_null_aqi(monkeypatch) -> None:
+    monkeypatch.setattr(
+        weather,
+        "_request_json",
+        lambda *_a, **_k: {
+            "current": {"european_aqi": None, "pm2_5": 1.0, "pm10": 2.0}
+        },
+    )
+    city = weather.City("Manila", "", "Philippines", 14.6, 121.0)
+    with pytest.raises(weather.WeatherError):
+        weather.fetch_air_quality(city)
+
+
+def test_forecast_rejects_null_current_readings(monkeypatch) -> None:
+    monkeypatch.setattr(
+        weather,
+        "_request_json",
+        lambda *_a, **_k: {
+            "current": {"time": "2026-01-01T12:00", "temperature_2m": None},
+            "hourly": {"time": [], "temperature_2m": []},
+            "daily": {"time": []},
+        },
+    )
+    city = weather.City("Manila", "", "Philippines", 14.6, 121.0)
+    with pytest.raises(weather.WeatherError):
+        weather.fetch_forecast(city)
+
+
+def test_forecast_skips_days_without_high_or_low(monkeypatch) -> None:
+    monkeypatch.setattr(
+        weather,
+        "_request_json",
+        lambda *_a, **_k: {
+            "current": {
+                "time": "2026-01-01T12:00",
+                "temperature_2m": 30,
+                "apparent_temperature": 33,
+                "relative_humidity_2m": 70,
+            },
+            "hourly": {"time": [], "temperature_2m": []},
+            "daily": {
+                "time": ["2026-01-01", "2026-01-02"],
+                "temperature_2m_max": [None, 20],
+                "temperature_2m_min": [10, 10],
+                "weather_code": [0, 1],
+                "precipitation_probability_max": [0, 0],
+                "uv_index_max": [0, 0],
+            },
+        },
+    )
+    city = weather.City("Manila", "", "Philippines", 14.6, 121.0)
+    forecast = weather.fetch_forecast(city)
+    assert [day.date for day in forecast.days] == ["2026-01-02"]

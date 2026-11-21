@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from rich.text import Text
-from textual import work
+from textual import events, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -37,7 +37,7 @@ class AddCityScreen(ModalScreen[str | None]):
     def compose(self) -> ComposeResult:
         with Vertical(id="add-card"):
             yield Static("ADD A CITY", id="add-title")
-            yield Input(placeholder="City name, e.g. Manila", id="city-input", max_length=80)
+            yield Input(placeholder="City name, e.g. Tokyo", id="city-input", max_length=80)
             yield Static("Enter to search · Esc to cancel", id="add-hint")
 
     def on_mount(self) -> None:
@@ -161,7 +161,7 @@ class WeatuiApp(App[None]):
                 with Vertical(id="sidebar"):
                     yield Static("CITIES", classes="section")
                     yield ListView(id="cities")
-                    yield Static("a add  d remove  ↑↓ browse\n[ ] move  v all cities", id="side-hint")
+                    yield Static("a add  d remove  ↑↓ browse\n[ ] move  v all\nr refresh  u units  t theme", id="side-hint")
                 with Vertical(id="details"):
                     yield Static("CURRENT", classes="section")
                     yield Static(id="current")
@@ -177,23 +177,27 @@ class WeatuiApp(App[None]):
         self.refresh_interval = self.set_interval(self.store.config.refresh_seconds, self.action_refresh)
         self.action_refresh()
 
+    def on_resize(self, event: events.Resize) -> None:
+        self.screen.set_class(event.size.width < 64, "narrow")
+
     def _footer_text(self) -> Text:
         if self.store.config.cities:
             city = self.store.config.cities[self.store.config.selected]
             updated = self._last_update.strftime("%H:%M") if self._last_update else "waiting"
             return Text(
-                f"{city.name}  ·  {self.store.config.units}  ·  updated {updated}  ·  a add  r refresh  u units  t theme  ·  data © Open-Meteo.com (CC BY 4.0)",
+                f"{city.name} · {self.store.config.units} · {updated} · © Open-Meteo.com (CC BY 4.0)",
                 style="dim",
             )
         return Text(
-            "No cities yet  ·  press a to add one  ·  data © Open-Meteo.com (CC BY 4.0)",
+            "No cities yet · press a to add one · © Open-Meteo.com (CC BY 4.0)",
             style="dim",
         )
 
     def _apply_theme(self) -> None:
+        base = self.screen_stack[0] if self.screen_stack else self.screen
         for theme in THEMES:
-            self.screen.remove_class(f"theme-{theme}")
-        self.screen.add_class(f"theme-{self.store.config.theme}")
+            base.remove_class(f"theme-{theme}")
+        base.add_class(f"theme-{self.store.config.theme}")
 
     def _shell_ready(self) -> bool:
         try:
@@ -363,7 +367,9 @@ class WeatuiApp(App[None]):
     def _add_city(self, city: City) -> None:
         if city is None:
             return
-        self.store.add_city(city)
+        if not self.store.add_city(city):
+            self._set_status("could not add (duplicate or limit reached)")
+            return
         self._render_cities()
         self._render_selection()
         self._set_status(f"added {city.label}")
@@ -411,6 +417,8 @@ class WeatuiApp(App[None]):
         self._render_selection()
 
     def on_list_view_highlighted(self, event: ListView.Highlighted) -> None:
+        if event.list_view.id != "cities":
+            return
         index = event.list_view.index
         if index is None or index < 0:
             return

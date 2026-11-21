@@ -11,7 +11,7 @@ from pathlib import Path
 from .weather import City
 
 UNITS = ("C", "F")
-THEMES = ("greenit", "bluney", "yellen", "mono")
+THEMES = ("greenit", "bluney", "yellen", "gruvbox", "catppuccin", "tokyonight", "mono")
 MAX_CITIES = 24
 
 
@@ -41,6 +41,13 @@ def _clean_city(raw: object) -> City | None:
     )
 
 
+def _safe_int(value: object, default: int) -> int:
+    try:
+        return int(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError, OverflowError):
+        return default
+
+
 @dataclass
 class Config:
     cities: list[City] = field(default_factory=list)
@@ -53,8 +60,8 @@ class Config:
         cities = self.cities[:MAX_CITIES]
         units = self.units.upper() if self.units.upper() in UNITS else "C"
         theme = self.theme.lower() if self.theme.lower() in THEMES else "greenit"
-        refresh = max(60, min(3600, int(self.refresh_seconds)))
-        selected = max(0, min(len(cities) - 1, int(self.selected))) if cities else 0
+        refresh = max(60, min(3600, _safe_int(self.refresh_seconds, 600)))
+        selected = max(0, min(len(cities) - 1, _safe_int(self.selected, 0))) if cities else 0
         return replace(
             self,
             cities=cities,
@@ -89,8 +96,8 @@ class Store:
             cities=cities,
             units=str(raw.get("units", "C")),
             theme=str(raw.get("theme", "greenit")),
-            refresh_seconds=int(raw.get("refresh_seconds", 600) or 600),
-            selected=int(raw.get("selected", 0) or 0),
+            refresh_seconds=_safe_int(raw.get("refresh_seconds"), 600),
+            selected=_safe_int(raw.get("selected"), 0),
         )
         self.config = config.sanitized()
 
@@ -107,13 +114,15 @@ class Store:
                 with contextlib.suppress(OSError):
                     tmp.unlink()
 
-    def add_city(self, city: City) -> None:
+    def add_city(self, city: City) -> bool:
         if any(item.latitude == city.latitude and item.longitude == city.longitude for item in self.config.cities):
-            return
+            return False
+        if len(self.config.cities) >= MAX_CITIES:
+            return False
         self.config.cities.append(city)
-        self.config.cities = self.config.cities[:MAX_CITIES]
         self.config.selected = len(self.config.cities) - 1
         self.save()
+        return True
 
     def remove_city(self, index: int) -> None:
         if 0 <= index < len(self.config.cities):

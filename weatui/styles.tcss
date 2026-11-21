@@ -22,13 +22,16 @@ Screen {
 
 #sidebar {
     width: 30;
+    height: 1fr;
     padding: 1 1;
     border-right: solid #2F6B4C;
 }
 
 #details {
     width: 1fr;
+    height: 1fr;
     padding: 1 2;
+    overflow-y: auto;
 }
 
 .section {
@@ -133,6 +136,30 @@ ListView > ListItem.-highlight {
 .theme-mono #cities, .theme-mono #current, .theme-mono #days, .theme-mono #add-card { background: #161616; border: round #444444; color: #F0F0F0; }
 .theme-mono #statusbar { border-top: solid #444444; color: #999999; }
 
+.theme-gruvbox { background: #282828; color: #EBDBB2; }
+.theme-gruvbox ListView > ListItem.-highlight { background: #FE8019; color: #282828; }
+.theme-gruvbox #topbar { color: #FE8019; border-bottom: solid #504945; }
+.theme-gruvbox #sidebar { border-right: solid #504945; }
+.theme-gruvbox #cities, .theme-gruvbox #current, .theme-gruvbox #days, .theme-gruvbox #add-card { background: #3C3836; border: round #504945; color: #EBDBB2; }
+.theme-gruvbox #statusbar { border-top: solid #504945; color: #A89984; }
+.theme-gruvbox .section, .theme-gruvbox #side-hint, .theme-gruvbox #hours { color: #A89984; }
+
+.theme-catppuccin { background: #1E1E2E; color: #CDD6F4; }
+.theme-catppuccin ListView > ListItem.-highlight { background: #CBA6F7; color: #1E1E2E; }
+.theme-catppuccin #topbar { color: #CBA6F7; border-bottom: solid #45475A; }
+.theme-catppuccin #sidebar { border-right: solid #45475A; }
+.theme-catppuccin #cities, .theme-catppuccin #current, .theme-catppuccin #days, .theme-catppuccin #add-card { background: #313244; border: round #45475A; color: #CDD6F4; }
+.theme-catppuccin #statusbar { border-top: solid #45475A; color: #A6ADC8; }
+.theme-catppuccin .section, .theme-catppuccin #side-hint, .theme-catppuccin #hours { color: #A6ADC8; }
+
+.theme-tokyonight { background: #1A1B26; color: #C0CAF5; }
+.theme-tokyonight ListView > ListItem.-highlight { background: #7AA2F7; color: #1A1B26; }
+.theme-tokyonight #topbar { color: #7AA2F7; border-bottom: solid #3B4261; }
+.theme-tokyonight #sidebar { border-right: solid #3B4261; }
+.theme-tokyonight #cities, .theme-tokyonight #current, .theme-tokyonight #days, .theme-tokyonight #add-card { background: #292E42; border: round #3B4261; color: #C0CAF5; }
+.theme-tokyonight #statusbar { border-top: solid #3B4261; color: #A9B1D6; }
+.theme-tokyonight .section, .theme-tokyonight #side-hint, .theme-tokyonight #hours { color: #A9B1D6; }
+
 #pick-card {
     width: 70;
     height: auto;
@@ -186,3 +213,8 @@ ListView > ListItem.-highlight {
     max-height: 16;
     margin: 1 0;
 }
+
+/* narrow fallback: <64 cols, sidebar shrinks to keep details readable */
+.narrow #sidebar { width: 18; }
+.narrow #details { padding: 1 1; }
+.narrow #side-hint { display: none; }

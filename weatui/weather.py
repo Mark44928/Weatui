@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 from dataclasses import dataclass
+from http.client import HTTPException
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -84,7 +85,7 @@ def _request_json(url: str, timeout: float = 12.0) -> dict:
     try:
         with urlopen(request, timeout=timeout) as response:
             raw = response.read(2_000_000)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, HTTPException) as exc:
         raise WeatherError(f"could not reach Open-Meteo: {exc}") from exc
     try:
         payload = json.loads(raw)
@@ -102,7 +103,7 @@ def search_cities(name: str) -> list[City]:
     url = f"{GEOCODE_URL}?{urlencode({'name': name, 'count': 6, 'language': 'en', 'format': 'json'})}"
     payload = _request_json(url)
     cities: list[City] = []
-    for item in payload.get("results", []):
+    for item in payload.get("results") or []:
         if not isinstance(item, dict):
             continue
         try:
@@ -112,14 +113,14 @@ def search_cities(name: str) -> list[City]:
             continue
         if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
             continue
-        city_name = str(item.get("name", "")).strip()
+        city_name = (item.get("name") or "").strip()
         if not city_name:
             continue
         cities.append(
             City(
                 name=city_name[:80],
-                admin=str(item.get("admin1", "")).strip()[:80],
-                country=str(item.get("country", "")).strip()[:80],
+                admin=(item.get("admin1") or "").strip()[:80],
+                country=(item.get("country") or "").strip()[:80],
                 latitude=latitude,
                 longitude=longitude,
             )
@@ -137,8 +138,18 @@ def _number(value: object, default: float = 0.0) -> float:
     return number if math.isfinite(number) else default
 
 
+def _required_number(value: object) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        raise WeatherError("response is missing a required reading") from None
+    if not math.isfinite(number):
+        raise WeatherError("response is missing a required reading")
+    return number
+
+
 def _time_list(value: object) -> list[str]:
-    return [str(item) for item in value] if isinstance(value, list) else []
+    return [str(item) if item is not None else "" for item in value] if isinstance(value, list) else []
 
 
 def fetch_forecast(city: City, days: int = 7) -> Forecast:
@@ -172,7 +183,18 @@ def fetch_forecast(city: City, days: int = 7) -> Forecast:
     hour_rain = hourly.get("precipitation_probability") or []
     hour_codes = hourly.get("weather_code") or []
     hours: list[Hour] = []
-    for index, time in enumerate(hour_times[:24]):
+    # Start from the current hour, not from 00:00 of today
+    current_hour = str(current.get("time", ""))[:13]
+    start = 0
+    if current_hour:
+        for i, t in enumerate(hour_times):
+            if t[:13] >= current_hour:
+                start = i
+                break
+    for offset, time in enumerate(hour_times[start:start + 24]):
+        index = start + offset
+        if index < len(hour_temps) and hour_temps[index] is None:
+            continue
         try:
             temperature = _number(hour_temps[index])
             rain = int(_number(hour_rain[index]))
@@ -191,6 +213,10 @@ def fetch_forecast(city: City, days: int = 7) -> Forecast:
     sunsets = _time_list(daily.get("sunset"))
     out_days: list[Day] = []
     for index, date in enumerate(daily_times[:days]):
+        if index < len(highs) and highs[index] is None:
+            continue
+        if index < len(lows) and lows[index] is None:
+            continue
         try:
             out_days.append(
                 Day(
@@ -209,9 +235,9 @@ def fetch_forecast(city: City, days: int = 7) -> Forecast:
 
     return Forecast(
         current_time=str(current.get("time", "")),
-        temperature_c=_number(current.get("temperature_2m")),
-        feels_like_c=_number(current.get("apparent_temperature")),
-        humidity=int(_number(current.get("relative_humidity_2m"))),
+        temperature_c=_required_number(current.get("temperature_2m")),
+        feels_like_c=_required_number(current.get("apparent_temperature")),
+        humidity=int(_required_number(current.get("relative_humidity_2m"))),
         precipitation_mm=_number(current.get("precipitation")),
         code=int(_number(current.get("weather_code"))),
         is_day=bool(current.get("is_day", 1)),
@@ -234,8 +260,11 @@ def fetch_air_quality(city: City) -> Air:
     current = payload.get("current")
     if not isinstance(current, dict):
         raise WeatherError("Open-Meteo air response is missing current data")
+    aqi_raw = current.get("european_aqi")
+    if aqi_raw is None:
+        raise WeatherError("Open-Meteo air response is missing AQI")
     return Air(
-        aqi=int(_number(current.get("european_aqi"))),
+        aqi=int(_number(aqi_raw)),
         pm2_5=_number(current.get("pm2_5")),
         pm10=_number(current.get("pm10")),
     )

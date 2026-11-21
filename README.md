@@ -21,7 +21,7 @@ A friendly terminal weather app built with **Python + Textual** and powered by *
 - an all-cities compare table for a quick side-by-side
 - remove-with-confirmation so a stray key does not drop a city
 - Celsius / Fahrenheit toggle
-- Greenit, Bluney, Yellen and Mono interface themes
+- Greenit, Bluney, Yellen, Gruvbox, Catppuccin, Tokyo Night and Mono interface themes
 - automatic refresh (10 minutes by default)
 - city search through Open-Meteo geocoding
 - no API key, no account, no telemetry
