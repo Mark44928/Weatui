@@ -18,6 +18,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--list-cities", action="store_true", help="print saved cities and exit")
     parser.add_argument("--units", choices=UNITS, type=str.upper, help="set temperature units")
     parser.add_argument("--theme", choices=THEMES, help="set the interface theme")
+    parser.add_argument("--list-themes", action="store_true", help="print available themes and exit")
     return parser
 
 
@@ -28,6 +29,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         store.set_units(args.units)
     if args.theme:
         store.set_theme(args.theme)
+    if args.list_themes:
+        print("available themes: " + ", ".join(THEMES))
+        return 0
     if args.list_cities:
         if not store.config.cities:
             print("No saved cities.")
