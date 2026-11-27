@@ -83,7 +83,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                         match = c
                         break
             if match is None:
-                print(f"weatui: no saved city matches '{args.city}' (try --list-cities)")
+                print(f"weatui: no saved city matches '{args.city}'. Saved cities:")
+                for i, c in enumerate(store.config.cities, start=1):
+                    print(f"  {i}. {c.label}")
+                print("(pass --city NAME or --city INDEX, or run --list-cities)")
                 return 2
             city = match
         try:
