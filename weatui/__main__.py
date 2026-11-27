@@ -20,10 +20,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--theme", choices=THEMES, help="set the interface theme")
     parser.add_argument("--list-themes", action="store_true", help="print available themes and exit")
     parser.add_argument("--tux", action="store_true", help="easter egg: a Tux dressed for the current weather")
+    parser.add_argument("--city", metavar="NAME|INDEX", help="pick a saved city for --tux (name or 1-based index)")
     return parser
 
 
-def tux_for_weather(code: int, is_day: bool, temp_c: float, units: str) -> str:
+def tux_for_weather(code: int, is_day: bool, temp_c: float, units: str, city_label: str) -> str:
     from .weather import format_temp, weather_text
 
     if code in (0, 1):
@@ -49,7 +50,7 @@ def tux_for_weather(code: int, is_day: bool, temp_c: float, units: str) -> str:
         "/'\\_   _/`\\\n"
         "\\___)=(___/"
     )
-    return f"{tux}\n  {label} · {format_temp(temp_c, units)} · {weather_text(code)}"
+    return f"{tux}\n  {city_label} · {label} · {format_temp(temp_c, units)} · {weather_text(code)}"
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -69,12 +70,28 @@ def main(argv: Sequence[str] | None = None) -> int:
             print("No saved cities. Add one first (run weatui, press a).")
             return 0
         city = store.config.cities[store.config.selected]
+        if args.city:
+            pick = args.city.strip()
+            match = None
+            if pick.isdigit():
+                idx = int(pick) - 1
+                if 0 <= idx < len(store.config.cities):
+                    match = store.config.cities[idx]
+            else:
+                for c in store.config.cities:
+                    if pick.lower() in c.label.lower():
+                        match = c
+                        break
+            if match is None:
+                print(f"weatui: no saved city matches '{args.city}' (try --list-cities)")
+                return 2
+            city = match
         try:
             forecast = fetch_forecast(city)
         except WeatherError as exc:
             print(f"weatui: {exc}")
             return 1
-        print(tux_for_weather(forecast.code, forecast.is_day, forecast.temperature_c, store.config.units))
+        print(tux_for_weather(forecast.code, forecast.is_day, forecast.temperature_c, store.config.units, city.label))
         return 0
     if args.list_cities:
         if not store.config.cities:
