@@ -14,7 +14,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="weatui",
         description="A friendly terminal weather app powered by Open-Meteo.",
     )
-    parser.add_argument("--version", action="version", version=f"weatui {__version__}")
+    parser.add_argument("--version", "-v", action="version", version=f"weatui {__version__}")
     parser.add_argument("--list-cities", action="store_true", help="print saved cities and exit")
     parser.add_argument("--units", choices=UNITS, type=str.upper, help="set temperature units")
     parser.add_argument("--theme", choices=THEMES, help="set the interface theme")
