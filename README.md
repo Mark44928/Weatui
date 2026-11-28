@@ -1,8 +1,10 @@
 # Weatui
 
-<p align="center"><img src="assets/logo.svg" width="760" alt="Weatui logo"></p>
+**Friendly terminal weather TUI powered by Open-Meteo — saved cities, current conditions, 7-day + hourly forecast. No API key.**
 
-A friendly terminal weather app built with **Python + Textual** and powered by **Open-Meteo**. Save a handful of cities, switch between them, and get a clean current / 7-day / next-hours view without accounts, API keys or a browser.
+Built with Python + Textual. Works on Termux and Linux.
+
+<p align="center"><img src="assets/logo.svg" width="760" alt="Weatui logo"></p>
 
 <p align="center"><img src="docs/screenshot-weather.png" width="720" alt="Weatui weather screen"></p>
 
@@ -12,29 +14,14 @@ A friendly terminal weather app built with **Python + Textual** and powered by *
 ![Textual](https://img.shields.io/badge/Textual-1.0%2B-5e5ce6)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## Features
-
-- saved cities in a readable JSON config, reorderable to taste
-- current conditions, feels-like, humidity, wind, UV, rain and air quality
-- a 12-hour temperature sparkline plus the next 7 days and next 6 hours
-- city search that lets you pick the right match, not just the first one
-- an all-cities compare table for a quick side-by-side
-- remove-with-confirmation so a stray key does not drop a city
-- Celsius / Fahrenheit toggle
-- Greenit, Bluney, Yellen, Gruvbox, Catppuccin, Tokyo Night and Mono interface themes
-- automatic refresh (10 minutes by default)
-- city search through Open-Meteo geocoding
-- no API key, no account, no telemetry
-- clean fallback when the network or API is unavailable
-
-## Install
+## Quick start
 
 ```bash
 pipx install git+https://github.com/Mark44928/Weatui.git
 weatui
 ```
 
-Or use the prefix-aware installer:
+Or:
 
 ```bash
 git clone https://github.com/Mark44928/Weatui
@@ -43,79 +30,46 @@ bash install.sh
 weatui
 ```
 
-It creates an isolated venv and links into `$PREFIX/bin` on Termux or `~/.local/bin` on Linux. `--prefix DIR` overrides the launcher directory; `--uninstall` removes the link and managed venv.
+## Features
+
+- saved cities in a readable JSON config
+- current conditions, feels-like, humidity, wind, UV, rain and air quality
+- 12-hour temperature sparkline + next 7 days and next 6 hours
+- city search with proper match picking
+- all-cities compare table
+- Celsius / Fahrenheit toggle
+- themes: Greenit, Bluney, Yellen, Gruvbox, Catppuccin, Tokyo Night, Mono
+- automatic refresh (10 min default)
+- no API key, no account, no telemetry
 
 ## Keys
 
 | Key | Action |
 |---|---|
 | `a` | add a city |
-| `d` | remove the selected city (asks first) |
+| `d` | remove the selected city |
 | `↑` / `↓` | choose a saved city |
-| `[` / `]` | move the selected city up / down |
+| `[` / `]` | move city up / down |
 | `r` | refresh now |
-| `u` | switch Celsius / Fahrenheit |
+| `u` | Celsius / Fahrenheit |
 | `t` | cycle theme |
-| `v` | compare all saved cities |
+| `v` | compare all cities |
 | `q` | quit |
 
-## Config
+## Related Mark44928 projects
 
-Stored at `$XDG_CONFIG_HOME/weatui/config.json` (or `~/.config/weatui/config.json`):
+- [FlufflessPrompt](https://github.com/Mark44928/FlufflessPrompt) — quiet Oh My Zsh theme
+- [SnakTUI](https://github.com/Mark44928/SnakTUI) — neon terminal Snake
+- [Solvamath](https://github.com/Mark44928/Solvamath) — math puzzle game
+- [Greenit](https://github.com/Mark44928/Greenit) · [Bluney](https://github.com/Mark44928/Bluney) · [Yellen](https://github.com/Mark44928/Yellen) — theme families
+- Full hub: [Mark44928](https://mark44928.github.io/Mark44928/)
 
-```json
-{
-  "cities": [
-    {
-      "name": "Manila",
-      "admin": "Metro Manila",
-      "country": "Philippines",
-      "latitude": 14.5995,
-      "longitude": 120.9842
-    }
-  ],
-  "units": "C",
-  "theme": "greenit",
-  "refresh_seconds": 600,
-  "selected": 0
-}
-```
+## License
 
-## CLI
-
-```bash
-weatui                      # open the TUI
-weatui --list-cities        # print the saved city list
-weatui --units F            # set Fahrenheit
-weatui --theme yellen       # set a theme
-weatui --version
-```
-
-## Development
-
-```bash
-make check
-```
-
-Runs Ruff, 13 tests and a CLI smoke check. The tests mock all Open-Meteo traffic.
-
-## Data
-
-Weather and geocoding data by [Open-Meteo](https://open-meteo.com/) under
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Weatui is not
-affiliated with Open-Meteo. The app is intended for non-commercial use, matching
-Open-Meteo's free API terms.
-
-Part of the [Mark44928 family](https://mark44928.github.io/Mark44928/): [Fluffless Prompt](https://github.com/Mark44928/FlufflessPrompt) · [Greenit](https://github.com/Mark44928/Greenit) · [Bluney](https://github.com/Mark44928/Bluney) · [Yellen](https://github.com/Mark44928/Yellen).
-
-MIT.
+MIT. Weather data by Open-Meteo under CC BY 4.0.
 
 ---
 
 <div align="center">
-<img width="100%" src="https://api.star-history.com/svg?repos=Mark44928/Weatui&amp;type=Date" alt="Star history" />
+<img width="100%" src="https://api.star-history.com/svg?repos=Mark44928/Weatui&type=Date" alt="Star history" />
 </div>
-
----
-
-**More projects:** [Mark44928's hub](https://mark44928.github.io/Mark44928/) — a family of dependency-free tools for Termux, Linux, and the terminal.
