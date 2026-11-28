@@ -8,7 +8,7 @@ from rich.text import Text
 from textual import events, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
 from textual.widgets import DataTable, Input, Label, ListItem, ListView, Static
@@ -162,7 +162,7 @@ class WeatuiApp(App[None]):
                     yield Static("CITIES", classes="section")
                     yield ListView(id="cities")
                     yield Static("a add  d remove  ↑↓ browse\n[ ] move  v all\nr refresh  u units  t theme", id="side-hint")
-                with Vertical(id="details"):
+                with VerticalScroll(id="details"):
                     yield Static("CURRENT", classes="section")
                     yield Static(id="current")
                     yield Static("NEXT 7 DAYS", classes="section")

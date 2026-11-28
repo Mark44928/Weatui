@@ -5,23 +5,28 @@ Screen {
 
 #shell {
     height: 1fr;
+    width: 100%;
     padding: 1 2;
 }
 
 #topbar {
     height: 3;
+    width: 100%;
     padding: 0 1;
     border-bottom: solid #2F6B4C;
     color: #7BD88F;
     text-style: bold;
+    content-align: center middle;
 }
 
 #body {
     height: 1fr;
+    width: 100%;
 }
 
 #sidebar {
     width: 30;
+    min-width: 16;
     height: 1fr;
     padding: 1 1;
     border-right: solid #2F6B4C;
@@ -31,10 +36,12 @@ Screen {
     width: 1fr;
     height: 1fr;
     padding: 1 2;
-    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-size-vertical: 1;
 }
 
 .section {
+    height: auto;
     color: #9CB8A3;
     text-style: bold;
     margin-top: 1;
@@ -42,8 +49,16 @@ Screen {
 
 #cities {
     height: 1fr;
+    min-height: 4;
     background: #122A1F;
     border: round #2F6B4C;
+}
+
+Button {
+    width: auto;
+    min-width: 12;
+    content-align: center middle;
+    text-align: center;
 }
 
 ListView > ListItem {
@@ -56,6 +71,7 @@ ListView > ListItem.-highlight {
 }
 
 #current {
+    height: auto;
     min-height: 8;
     padding: 1;
     border: round #2F6B4C;
@@ -73,23 +89,28 @@ ListView > ListItem.-highlight {
 }
 
 #hours {
+    height: auto;
     color: #9CB8A3;
 }
 
 #side-hint {
+    height: auto;
     color: #6F917B;
     margin-top: 1;
 }
 
 #statusbar {
     height: 2;
+    width: 100%;
     padding: 0 1;
     border-top: solid #2F6B4C;
     color: #9CB8A3;
+    content-align: left middle;
 }
 
 #add-card {
     width: 60;
+    max-width: 100%;
     height: auto;
     padding: 1 2;
     border: thick #7BD88F;
@@ -97,6 +118,7 @@ ListView > ListItem.-highlight {
 }
 
 #add-title {
+    height: auto;
     color: #7BD88F;
     text-style: bold;
 }
@@ -106,6 +128,7 @@ ListView > ListItem.-highlight {
 }
 
 #add-hint {
+    height: auto;
     color: #9CB8A3;
 }
 
@@ -162,6 +185,7 @@ ListView > ListItem.-highlight {
 
 #pick-card {
     width: 70;
+    max-width: 100%;
     height: auto;
     max-height: 80%;
     padding: 1 2;
@@ -171,6 +195,7 @@ ListView > ListItem.-highlight {
 
 #matches {
     height: auto;
+    min-height: 4;
     max-height: 12;
     margin: 1 0;
     background: #0C1F17;
@@ -188,6 +213,7 @@ ListView > ListItem.-highlight {
 
 #confirm-card {
     width: 60;
+    max-width: 100%;
     height: auto;
     padding: 1 2;
     border: thick #E06C75;
@@ -195,12 +221,14 @@ ListView > ListItem.-highlight {
 }
 
 #confirm-city {
+    height: auto;
     padding: 1 0;
     color: #F5D6D8;
 }
 
 #compare-card {
     width: 92%;
+    max-width: 100%;
     height: auto;
     max-height: 80%;
     padding: 1 2;
@@ -210,11 +238,25 @@ ListView > ListItem.-highlight {
 
 #compare-table {
     height: auto;
+    min-height: 3;
     max-height: 16;
     margin: 1 0;
 }
 
 /* narrow fallback: <64 cols, sidebar shrinks to keep details readable */
-.narrow #sidebar { width: 18; }
-.narrow #details { padding: 1 1; }
+.narrow #sidebar { width: 20; }
+.narrow #shell { padding: 0 1; }
+.narrow #details { padding: 0 1; }
+.narrow #topbar { content-align: left middle; }
 .narrow #side-hint { display: none; }
+.narrow #compare-card { width: 96%; }
+
+/* dialogs sit centred instead of pinned to the top-left corner */
+ModalScreen {
+    align: center middle;
+}
+
+ModalScreen > Vertical {
+    height: auto;
+    max-height: 100%;
+}
